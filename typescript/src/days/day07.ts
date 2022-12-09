@@ -1,64 +1,71 @@
-export function day07(data: string) {
-  const lines = data.split('\n');
-  const result1 = part1(lines);
-  const result2 = data[1];
+import { sum } from "./utils";
 
-  console.log('First result', result1);
-  console.log('Second result', result2);
+type Directory = [string, number] // name, size
+
+export function day07(data: string) {
+  const dirs = buildDirectoryList(data);
+  const result1 = part1(dirs);
+  const result2 = part2(dirs)
+
+  console.log('The total size of the "small" directories is', result1);
+  console.log('The smallest directory that would free up enough space is', result2);
 }
 
+function part1(dirs: Directory[]) {
+  return dirs.
+    map(dir => dir[1]).
+    filter(size => size < 100000).
+    reduce(sum)
+}
 
-function part1(lines: string[]) {
-  const root = { name: 'home', parent: null, dirs: {}, files: {}, size: 0 }
-  let current = root;
+function part2(dirs: Directory[]) {
+  const spaceLeft = 70000000 - dirs[dirs.length-1][1]
+  const spaceToFree = 30000000 - spaceLeft
 
-  for(let line of lines) {
-    if (line[0] === '$') {
-      const [_ , cmd, dir] = line.split(' ');
-      console.log('command', cmd, dir)
-      if (cmd === 'cd') {
-        if (dir === '/') {
-          current = root;
-        } else if (dir === '..') {
-          current = current.parent
-        } else {
-          current = current.dirs[dir]
-        }
-      } // cd
-    } else {
-      const [size, name] = line.split(' ')
-      console.log(size, name, current)
-      if (size === 'dir') {
-        current.dirs[name] = current.dirs[name] || { name, parent: current, dirs: {}, files: {}, size: 0}
-      } else {
-        current.files[name] = +size
+  const relevantDirs =  dirs.
+    map(dir => dir[1]).
+    filter(size => size >= spaceToFree)
+
+  return Math.min(...relevantDirs)
+}
+
+function buildDirectoryList(log: string): Directory[] {
+  const result: Directory[] = [];
+  const lines = log.split('\n')
+  const stepDownAndReturnSize = (dirName: string): number => {
+    let size = 0
+    while(lines.length > 0) {
+      const [p1, p2, p3] = lines.shift().split(' ');
+      switch(p1) {
+        case 'dir': /* ignore */ break;
+        case '$': 
+          {
+            if (p2 === 'cd' && p3 === '..') {
+              result.push([dirName, size]);
+              return size
+            } else if (p2 === 'cd') {
+              size += stepDownAndReturnSize(p3)
+            }
+          }
+          break;
+        default: size += +p1; 
       }
     }
+    result.push([dirName, size])
+    return size;
   }
-
-  let smallDirSum = 0
-
-  const dirs = []
-
-  function fillSizes(dir) {
-    Object.keys(dir.dirs).forEach(subdir => {
-      fillSizes(dir.dirs[subdir])
-      dir.size += dir.dirs[subdir].size
-    })
-    Object.keys(dir.files).forEach(filename => {
-      dir.size += dir.files[filename]
-    })
-    dirs.push({name: dir.name, size: dir.size })
-    if (dir.size <= 100000) smallDirSum += dir.size
-    console.log(dir.name, dir.size)
-  }
-
-  fillSizes(root)
-  console.log(smallDirSum)
-
-  const spaceLeft = 70000000 - root.size
-  const spaceNeeded = 30000000 - spaceLeft
-
-  const goodDirs = dirs.filter(dir => dir.size >= spaceNeeded).sort((a, b) => a.size-b.size)
-  console.log(spaceNeeded, goodDirs)
+  stepDownAndReturnSize('home');
+  return result;
 }
+
+
+
+
+  // fillSizes(root)
+  // console.log(smallDirSum)
+
+  // const spaceLeft = 70000000 - root.size
+  // const spaceNeeded = 30000000 - spaceLeft
+
+  // const goodDirs = dirs.filter(dir => dir.size >= spaceNeeded).sort((a, b) => a.size-b.size)
+  // console.log(spaceNeeded, goodDirs)
