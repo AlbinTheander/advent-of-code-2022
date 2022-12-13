@@ -29,8 +29,11 @@ async function runOneDay(day: string, data?: string) {
     const dataFile = data || `../data/${name}.txt`;
     const rawData = readFileSync(dataFile, 'utf-8');
 
+    const start = Date.now()
     console.log('\n=====', prettyName(name), '=====');
     module[name](rawData);
+    const time = Date.now() - start
+    console.log(`(${time}ms)`)
 }
 
 function prettyName(name: string): string {
