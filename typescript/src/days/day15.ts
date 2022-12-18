@@ -7,11 +7,11 @@ type Sensor = {
 
 export function day15(data: string) {
   const sensors = data.split('\n').map(line => line.match(/-?\d+/g).map(Number)).map(([x, y, bx, by]) => ({x, y, bx, by}))
-  // const result1 = part1(sensors);
-  const result2 = part2(sensors);
+  const result1 = part1(sensors);
+  const result2 = '10621647166538 (after about 25s)' // part2(sensors);
 
-  console.log('First result', 'result1');
-  console.log('Second result', result2);
+  console.log('In the line 2,000,000, there are', result1, 'beacons');
+  console.log('The tuning frequency for the missing beacon is', result2);
 }
 
 function part1(sensors: Sensor[]) {
@@ -21,7 +21,6 @@ function part1(sensors: Sensor[]) {
         const closestDistance = Math.abs(x - bx) + Math.abs(y - by)
         const distanceLeftAtRow = closestDistance - Math.abs(row - y)
         const segment = distanceLeftAtRow >= 0 ? [[x - distanceLeftAtRow, x + distanceLeftAtRow]] : []
-        console.log(x, y, bx, by, closestDistance, segment)
         return segment
     })
     const minX = Math.min(...segments.map(s => s[0]))
@@ -31,7 +30,7 @@ function part1(sensors: Sensor[]) {
         if (segments.some(([from, to]) => from <= x && x <= to)) count++
     }
     const beaconCount = new Set(sensors.filter(({by}) => by === row).map(({bx, by}) => bx + '-' + by)).size
-    console.log(count, beaconCount, count - beaconCount)
+    return count - beaconCount
 }
 
 function part2(sensors: Sensor[]) {
@@ -44,11 +43,9 @@ function part2(sensors: Sensor[]) {
             return result
         })
         const remaining = removeSpans([[0, 4000000]], segments)
-        // console.log(row, segments, remaining)
         if (remaining.length === 1) {
             const x = remaining[0][0]
-            console.log('Found', x, row, x * 4000000 + row)
-            break;
+            return x * 4000000 + row
         }
     }
 }
