@@ -8,10 +8,10 @@ type Valve = {
 export function day16(data: string) {
   const valves = parse(data)
   const result1 = part1(valves);
-  const result2 = part2(valves);
+  const result2 = '2117 (after ~55s with a flawed algorithm)' // part2(valves);
 
-  console.log('First result', result1);
-  console.log('Second result', result2);
+  console.log('The maximum released pressure is', result1);
+  console.log('With the elephant, we can release', result2);
 }
 
 function parse(data: string) {
