@@ -9,9 +9,9 @@ type BluePrint = {
 export function day19(data: string) {
   const blueprints = parse(data)
   const result1 = part1(blueprints);
-  console.log('First result', result1);
+  console.log('The sum of the quality levels is', result1);
   const result2 = part2(blueprints);
-  console.log('Second result', result2);
+  console.log('The product of the geode productions is', result2);
 }
 
 const ORE = 0
@@ -32,18 +32,17 @@ function part2(blueprints: BluePrint[]) {
   let result = 1
   blueprints.slice(0, 3).forEach(b => {
     const geodes = search(b, 32)
-    console.log('result 2', b.id, geodes)
     result *= geodes
   })
   return result
 }
 
-type State = { robots: number[], material: number[], time: number, didBuild: boolean }
+type State = { robots: number[], material: number[], time: number, waitCount: number }
 
 function search(blueprint: BluePrint, minutes: number): number {
   const score = (s: State) => s.time * 10000 + s.material[3]
   const queue = new PriorityQueue<State>((s1, s2) => score(s1) <= score(s2))
-  queue.add({robots: [1, 0, 0, 0], material: [0, 0, 0, 0], time: 0, didBuild: false })
+  queue.add({robots: [1, 0, 0, 0], material: [0, 0, 0, 0], time: 0, waitCount: 0 })
   const bests = Array(minutes+1).fill(queue.items[0])
   while(!queue.empty) {
     const state = queue.pop()
@@ -67,7 +66,8 @@ function search(blueprint: BluePrint, minutes: number): number {
     })
     // if 2 or more robots can be built, don't consider waiting (because we 
     // probably have enough material already). Questionable, but seem to work
-    if (possibleBuilds < 2) queue.add(getStateAfterWait(state));
+    // Also don't ever wait 5 turns in a row. (Also questionable.)
+    if (possibleBuilds < 2 && state.waitCount < 5) queue.add(getStateAfterWait(state));
   }
   return bests[minutes].material[GEODE]
 }
@@ -76,7 +76,7 @@ function getStateAfterWait(oldState: State): State {
   const {robots} = oldState
   const material = oldState.material.map((m, n) => m + oldState.robots[n])
   const time = oldState.time + 1
-  return { robots, material, time, didBuild: false }
+  return { robots, material, time, waitCount: oldState.waitCount+1 }
 
 }
 
@@ -84,7 +84,7 @@ function getStateAfterBuild(robot: number, oldState: State, blueprint: BluePrint
   const robots = oldState.robots.slice()
   robots[robot]++
   const material = oldState.material.map((m, n) => m + oldState.robots[n] - blueprint.costs[robot][n])
-  return { robots, material, time: oldState.time+1, didBuild: true }
+  return { robots, material, time: oldState.time+1, waitCount: 0 }
 }
 
 function shouldBuild(robot: number, state: State, blueprint: BluePrint) {
@@ -97,11 +97,11 @@ function shouldBuild(robot: number, state: State, blueprint: BluePrint) {
   const maxNeeded = Math.max(...blueprint.costs.map(c => c[robot]))
   if (state.robots[robot] >= maxNeeded) return false
 
-  // If didn't wait last time, it's okay to build
-  if (state.didBuild) return true
+  // If we built something last time, it's okay to build again
+  if (state.waitCount === 0) return true
   
-  // Otherwise, if waited last time and we _could_ build then, don't
-  // build now
+  // If waited last time and we _could_ build then, don't
+  // build now. (Because we should have built it earlier in that case)
   const prevMaterial = state.material.map((m, i) => m - state.robots[i])
   if (canBuild(robot, {...state, material: prevMaterial }, blueprint)) return false
 
