@@ -1,4 +1,4 @@
-import { sum } from "./utils";
+import { sum } from "./utils/utils";
 
 export function day25(data: string) {
   const nums = data.split('\n')

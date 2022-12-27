@@ -1,4 +1,4 @@
-import { sum } from "./utils"
+import { sum } from "./utils/utils"
 
 const WIN = 6
 const DRAW = 3

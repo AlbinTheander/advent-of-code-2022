@@ -1,4 +1,4 @@
-import { Infinite2DSet } from "./infinite2DSet";
+import { Infinite2DSet } from "./utils/infinite2DSet";
 
 export function day23(data: string) {
   const map = parse(data);

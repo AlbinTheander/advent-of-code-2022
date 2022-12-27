@@ -1,4 +1,4 @@
-import { sum } from "./utils";
+import { sum } from "./utils/utils";
 
 type Packet = number | Packet[]
 

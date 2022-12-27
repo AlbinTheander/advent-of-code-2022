@@ -1,5 +1,5 @@
-import { PriorityQueue } from "./PriorityQueue";
-import { sum } from "./utils";
+import { PriorityQueue } from "./utils/PriorityQueue";
+import { sum } from "./utils/utils";
 
 type BluePrint = {
   id: number,

@@ -1,4 +1,4 @@
-import { arrayCopy2, column, prod, sum, to2DArray } from "./utils";
+import { arrayCopy2, column, prod, sum, to2DArray } from "./utils/utils";
 
 export function day08(data: string) {
   const trees = to2DArray(data, '', true)

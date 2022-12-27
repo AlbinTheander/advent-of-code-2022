@@ -1,4 +1,4 @@
-import { arrayCopy2, to2DArray } from "./utils";
+import { arrayCopy2, to2DArray } from "./utils/utils";
 
 export function day12(data: string) {
   const map = to2DArray(data, '', false)

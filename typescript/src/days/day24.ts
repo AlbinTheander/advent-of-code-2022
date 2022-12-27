@@ -1,4 +1,4 @@
-import { arrayCopy2, to2DArray } from "./utils";
+import { arrayCopy2, to2DArray } from "./utils/utils";
 
 const EMPTY = 0
 const WALL = 16

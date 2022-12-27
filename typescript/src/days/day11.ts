@@ -1,4 +1,4 @@
-import { prod } from "./utils";
+import { prod } from "./utils/utils";
 
 type Operation = [string, '+'|'*', string]
 
